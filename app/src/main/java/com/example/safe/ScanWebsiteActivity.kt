@@ -1,5 +1,6 @@
 package com.example.safe
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -36,7 +37,7 @@ class ScanWebsiteActivity : AppCompatActivity() {
         btnAnalyze.setOnClickListener {
             val url = etUrl.text.toString()
             if (url.isNotEmpty()) {
-                // Next step: Navigate to Scanning... (Step 6)
+                startActivity(Intent(this, ScanningActivity::class.java))
             }
         }
     }

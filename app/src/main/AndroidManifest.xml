@@ -37,6 +37,9 @@
         <activity
             android:name=".ScanWebsiteActivity"
             android:exported="false" />
+        <activity
+            android:name=".ScanningActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
