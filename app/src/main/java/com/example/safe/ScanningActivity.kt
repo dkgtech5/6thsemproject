@@ -72,9 +72,16 @@ class ScanningActivity : AppCompatActivity() {
 
         animator.start()
 
+        val url = intent.getStringExtra("URL") ?: "https://example.com"
+        val isPhishing = url.contains("phish") || url.contains("secure-login")
+
         Handler(Looper.getMainLooper()).postDelayed({
-            // For now, let's navigate to a result (we'll implement result screen next)
-            // finish() 
+            val intent = Intent(this, ResultActivity::class.java)
+            intent.putExtra("URL", url)
+            intent.putExtra("IS_SAFE", !isPhishing)
+            intent.putExtra("RISK_SCORE", if (isPhishing) 94 else 5)
+            startActivity(intent)
+            finish()
         }, 5500)
     }
 

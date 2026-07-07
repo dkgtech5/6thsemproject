@@ -37,7 +37,9 @@ class ScanWebsiteActivity : AppCompatActivity() {
         btnAnalyze.setOnClickListener {
             val url = etUrl.text.toString()
             if (url.isNotEmpty()) {
-                startActivity(Intent(this, ScanningActivity::class.java))
+                val intent = Intent(this, ScanningActivity::class.java)
+                intent.putExtra("URL", url)
+                startActivity(intent)
             }
         }
     }
