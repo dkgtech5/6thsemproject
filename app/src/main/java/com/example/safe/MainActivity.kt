@@ -31,6 +31,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ScanWebsiteActivity::class.java))
         }
 
+        findViewById<View>(R.id.cardScanQR).setOnClickListener {
+            startActivity(Intent(this, QrScannerActivity::class.java))
+        }
+
         findViewById<View>(R.id.fabScan).setOnClickListener {
             startActivity(Intent(this, ScanWebsiteActivity::class.java))
         }
