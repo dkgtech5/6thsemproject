@@ -37,6 +37,7 @@ class ScanHistoryActivity : AppCompatActivity() {
 
         setupRecyclerView()
         setupFilters()
+        setupNavigation()
     }
 
     private fun setupRecyclerView() {
@@ -87,6 +88,28 @@ class ScanHistoryActivity : AppCompatActivity() {
         for (view in unselected) {
             view.setBackgroundResource(R.drawable.btn_secondary)
             view.setTextColor(ContextCompat.getColor(this, R.color.text_grey))
+        }
+    }
+
+    private fun setupNavigation() {
+        // Find views in bottom nav (assuming they have IDs)
+        findViewById<View>(R.id.navHome).setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+        
+        findViewById<View>(R.id.navStats).setOnClickListener {
+            startActivity(Intent(this, DashboardActivity::class.java))
+            finish()
+        }
+
+        findViewById<View>(R.id.navProfile).setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+            finish()
+        }
+
+        findViewById<View>(R.id.fabScan).setOnClickListener {
+            startActivity(Intent(this, ScanWebsiteActivity::class.java))
         }
     }
 }

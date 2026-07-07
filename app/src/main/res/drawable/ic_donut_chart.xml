@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <!-- Safe Part (Green) -->
+    <path
+        android:pathData="M50,10 A40,40 0 1,1 10,50"
+        android:strokeWidth="12"
+        android:strokeColor="#10B981"
+        android:strokeLineCap="round"/>
+    <!-- Phishing Part (Red) -->
+    <path
+        android:pathData="M10,50 A40,40 0 0,1 50,10"
+        android:strokeWidth="12"
+        android:strokeColor="#EF4444"
+        android:strokeLineCap="round"/>
+</vector>

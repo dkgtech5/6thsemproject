@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="300dp"
+    android:height="150dp"
+    android:viewportWidth="300"
+    android:viewportHeight="150">
+    <!-- Grid Lines -->
+    <path android:pathData="M10,20 L290,20" android:strokeWidth="1" android:strokeColor="#F1F5F9"/>
+    <path android:pathData="M10,50 L290,50" android:strokeWidth="1" android:strokeColor="#F1F5F9"/>
+    <path android:pathData="M10,80 L290,80" android:strokeWidth="1" android:strokeColor="#F1F5F9"/>
+    <path android:pathData="M10,110 L290,110" android:strokeWidth="1" android:strokeColor="#F1F5F9"/>
+    <path android:pathData="M10,140 L290,140" android:strokeWidth="2" android:strokeColor="#CBD5E1"/>
+
+    <!-- Line Chart Path -->
+    <path
+        android:pathData="M10,120 L50,110 L100,130 L150,80 L200,60 L250,90 L290,70"
+        android:strokeWidth="3"
+        android:strokeColor="#3B82F6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+
+    <!-- Data Points -->
+    <group>
+        <path android:fillColor="#3B82F6" android:pathData="M10,120 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0"/>
+        <path android:fillColor="#3B82F6" android:pathData="M50,110 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0"/>
+        <path android:fillColor="#3B82F6" android:pathData="M100,130 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0"/>
+        <path android:fillColor="#3B82F6" android:pathData="M150,80 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0"/>
+        <path android:fillColor="#3B82F6" android:pathData="M200,60 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0"/>
+        <path android:fillColor="#3B82F6" android:pathData="M250,90 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0"/>
+        <path android:fillColor="#3B82F6" android:pathData="M290,70 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0"/>
+    </group>
+</vector>

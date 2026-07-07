@@ -43,6 +43,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
+        findViewById<View>(R.id.navStats).setOnClickListener {
+            startActivity(Intent(this, DashboardActivity::class.java))
+        }
+
         findViewById<View>(R.id.btnViewAllRecent).setOnClickListener {
             startActivity(Intent(this, ScanHistoryActivity::class.java))
         }
