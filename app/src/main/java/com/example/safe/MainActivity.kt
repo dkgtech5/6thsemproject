@@ -35,8 +35,20 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ScanWebsiteActivity::class.java))
         }
 
+        findViewById<View>(R.id.navHistory).setOnClickListener {
+            startActivity(Intent(this, ScanHistoryActivity::class.java))
+        }
+
         findViewById<View>(R.id.navProfile).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
+        findViewById<View>(R.id.btnViewAllRecent).setOnClickListener {
+            startActivity(Intent(this, ScanHistoryActivity::class.java))
+        }
+
+        findViewById<View>(R.id.btnViewAllOverview).setOnClickListener {
+            startActivity(Intent(this, ScanHistoryActivity::class.java))
         }
     }
 

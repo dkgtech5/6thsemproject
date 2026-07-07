@@ -301,6 +301,7 @@
                 app:layout_constraintTop_toBottomOf="@id/llSecondaryActions" />
 
             <TextView
+                android:id="@+id/btnViewAllOverview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="View All"
@@ -453,6 +454,7 @@
                 app:layout_constraintTop_toBottomOf="@id/llStats" />
 
             <TextView
+                android:id="@+id/btnViewAllRecent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="View All"
