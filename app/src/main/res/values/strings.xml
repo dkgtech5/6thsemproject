@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">SafeGuard AI</string>
+    <string name="safeguard">SafeGuard </string>
+    <string name="ai">AI</string>
+    <string name="subtitle">AI Based Phishing Detection System</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="onboarding_title_1">Stay Safe\nStay Secure</string>
+    <string name="onboarding_desc_1">Detect phishing websites\ninstantly using AI</string>
+    <string name="onboarding_title_2">AI Powered\nDetection</string>
+    <string name="onboarding_desc_2">Advanced algorithms to keep\nyour browsing safe</string>
+    <string name="onboarding_title_3">Protect Your\nData</string>
+    <string name="onboarding_desc_3">Ensure your personal information\nis never compromised</string>
+    <string name="next">Next</string>
+    <string name="skip">Skip</string>
+    <string name="welcome_back">Welcome Back! \ud83d\udc4b</string>
+    <string name="login_to_continue">Login to continue</string>
+    <string name="email">Email</string>
+    <string name="email_hint">example@gmail.com</string>
+    <string name="password">Password</string>
+    <string name="password_hint">••••••••</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="login">Login</string>
+    <string name="or">OR</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="dont_have_account">Don\'t have an account? </string>
+    <string name="sign_up">Sign Up</string>
+    <string name="create_account">Create Account</string>
+    <string name="sign_up_to_get_started">Sign up to get started</string>
+    <string name="full_name">Full Name</string>
+    <string name="name_hint">John Doe</string>
+    <string name="already_have_account">Already have an account? </string>
+</resources>
