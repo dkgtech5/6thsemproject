@@ -51,6 +51,14 @@
     <string name="full_name">Full Name</string>
     <string name="name_hint">John Doe</string>
     <string name="already_have_account">Already have an account? </string>
+    <string name="report_website">Report Website</string>
+    <string name="url">URL</string>
+    <string name="select_reason">Select Reason</string>
+    <string name="phishing_reason">Phishing</string>
+    <string name="additional_details">Additional Details (Optional)</string>
+    <string name="details_hint">Write any additional information...</string>
+    <string name="submit_report">Submit Report</string>
+    <string name="cancel">Cancel</string>
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="position_qr_code">Position the QR code within the frame</string>
     <string name="enter_url_instead">Enter URL Instead</string>

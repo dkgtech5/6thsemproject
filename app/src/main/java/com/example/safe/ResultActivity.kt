@@ -98,7 +98,9 @@ class ResultActivity : AppCompatActivity() {
             if (isSafe) {
                 // Visit website logic
             } else {
-                // Report website logic
+                val intent = Intent(this, ReportWebsiteActivity::class.java)
+                intent.putExtra("URL", url)
+                startActivity(intent)
             }
         }
     }
