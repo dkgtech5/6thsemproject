@@ -56,7 +56,8 @@ class LoginActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnGoogle).setOnClickListener {
-            navigateToMain()
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
 
         findViewById<TextView>(R.id.tvForgotPassword).setOnClickListener {
@@ -66,10 +67,5 @@ class LoginActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvSignUp).setOnClickListener {
             startActivity(Intent(this, SignUpActivity::class.java))
         }
-    }
-
-    private fun navigateToMain() {
-        startActivity(Intent(this, MainActivity::class.java))
-        finish()
     }
 }

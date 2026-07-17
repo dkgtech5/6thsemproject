@@ -22,12 +22,31 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         setupNavigation()
+        setupSettingsClickListeners()
         
         findViewById<View>(R.id.btnLogout).setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
+        }
+    }
+
+    private fun setupSettingsClickListeners() {
+        findViewById<View>(R.id.btnPrivacy).setOnClickListener {
+            startActivity(Intent(this, PrivacyPolicyActivity::class.java))
+        }
+        findViewById<View>(R.id.btnTerms).setOnClickListener {
+            startActivity(Intent(this, TermsOfServiceActivity::class.java))
+        }
+        findViewById<View>(R.id.btnAbout).setOnClickListener {
+            startActivity(Intent(this, AboutUsActivity::class.java))
+        }
+        findViewById<View>(R.id.btnFeedback).setOnClickListener {
+            startActivity(Intent(this, FeedbackActivity::class.java))
+        }
+        findViewById<View>(R.id.btnHelp).setOnClickListener {
+            startActivity(Intent(this, HelpSupportActivity::class.java))
         }
     }
 
