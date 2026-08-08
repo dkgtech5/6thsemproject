@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -98,6 +99,11 @@ class SettingsActivity : AppCompatActivity() {
         }
         findViewById<View>(R.id.btnHelp).setOnClickListener {
             startActivity(Intent(this, HelpSupportActivity::class.java))
+        }
+
+        // Export History logic placeholder
+        findViewById<View>(R.id.ivExport).setOnClickListener {
+            Toast.makeText(this, "Export History feature coming soon!", Toast.LENGTH_SHORT).show()
         }
     }
 
