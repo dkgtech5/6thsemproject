@@ -73,6 +73,10 @@ The application follows a modular activity-based architecture designed for low l
 2. Open the project in **Android Studio**.
 3. Sync Gradle and run the app on an emulator or physical device (Min SDK: 26).
 
+## 👥 Contributors
+
+- **Dipak Kumar Gupta** - Lead Developer
+
 ---
 Developed as a 6th Semester Project.
 **SafeGuard AI - Stay Safe. Stay Secure.**
