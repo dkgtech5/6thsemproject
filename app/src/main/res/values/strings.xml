@@ -64,4 +64,6 @@
     <string name="position_qr_code">Position the QR code within the frame</string>
     <string name="enter_url_instead">Enter URL Instead</string>
     <string name="percent_format">%1$d%%</string>
+    <string name="status_safe">SAFE</string>
+    <string name="status_warning">WARNING</string>
 </resources>
