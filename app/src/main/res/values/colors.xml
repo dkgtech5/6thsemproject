@@ -6,4 +6,8 @@
     <color name="text_dark">#1A1A1A</color>
     <color name="text_grey">#666666</color>
     <color name="indicator_inactive">#E0E0E0</color>
+    <color name="status_safe_green">#10B981</color>
+    <color name="status_safe_bg">#ECFDF5</color>
+    <color name="status_phishing_red">#EF4444</color>
+    <color name="status_phishing_bg">#FEF2F2</color>
 </resources>
