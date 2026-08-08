@@ -54,6 +54,16 @@ The application follows a modular activity-based architecture designed for low l
 6. **Results:** Color-coded threat levels and detailed risk scores.
 7. **History/Stats:** Tracking long-term security metrics.
 
+## 🛤️ Project Roadmap
+
+- [x] Implementation of core UI/UX flow (12 screens)
+- [x] Integration of local SQLite database for Auth
+- [x] Real-time FastAPI backend connectivity
+- [x] Dynamic Dashboard and Stats implementation
+- [ ] Integration of Firebase for Cloud Notifications
+- [ ] Multi-language support (Nepali, English, Hindi)
+- [ ] Advanced browser extension companion
+
 ## 📝 Installation
 
 1. Clone the repository:
