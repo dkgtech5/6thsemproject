@@ -24,6 +24,13 @@ SafeGuard AI uses a dual-layer detection approach:
 1. **Heuristic Analysis:** Checks for suspicious patterns in URLs, abnormal length, and keyword matching.
 2. **AI-Driven Prediction:** Connects to a Python FastAPI backend running a trained Machine Learning model to evaluate the phishing probability of a given URL.
 
+## 🏗️ Technical Architecture
+
+The application follows a modular activity-based architecture designed for low latency:
+- **Presentation Layer:** Kotlin-based Activities using XML layouts and ViewCompat for professional system UI integration.
+- **Service Layer:** Retrofit Client for asynchronous network communication with the AI backend.
+- **Data Layer:** SQLite persistent storage for user sessions and security scan logs.
+
 ## 📱 Screenshots (Coming Soon)
 *   Dashboard Overview
 *   Real-time Scanning Animation
