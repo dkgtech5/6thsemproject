@@ -76,7 +76,9 @@ class ScanningActivity : AppCompatActivity() {
             override fun onResponse(call: Call<ScanResponse>, response: Response<ScanResponse>) {
                 if (response.isSuccessful) {
                     apiResponse = response.body()
+                    android.util.Log.d("ScanningActivity", "API Success: ${apiResponse?.status}")
                 } else {
+                    android.util.Log.e("ScanningActivity", "API Error: ${response.code()}")
                     Toast.makeText(this@ScanningActivity, "Server Error: ${response.message()}", Toast.LENGTH_LONG).show()
                 }
             }
