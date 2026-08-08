@@ -43,6 +43,14 @@ class LoginActivity : AppCompatActivity() {
                     val userDetails = dbHelper.getUserDetails(email)
                     Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
                     
+                    // Store user data in SharedPreferences for persistence
+                    val sharedPref = getSharedPreferences("SafePrefs", MODE_PRIVATE)
+                    with(sharedPref.edit()) {
+                        putString("USER_EMAIL", email)
+                        putString("USER_NAME", userDetails?.get("full_name"))
+                        apply()
+                    }
+
                     val intent = Intent(this, MainActivity::class.java)
                     intent.putExtra("USER_NAME", userDetails?.get("full_name"))
                     intent.putExtra("USER_EMAIL", userDetails?.get("email"))
@@ -53,11 +61,6 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this, "Invalid Email or Password", Toast.LENGTH_SHORT).show()
                 }
             }
-        }
-
-        findViewById<Button>(R.id.btnGoogle).setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
         }
 
         findViewById<TextView>(R.id.tvForgotPassword).setOnClickListener {

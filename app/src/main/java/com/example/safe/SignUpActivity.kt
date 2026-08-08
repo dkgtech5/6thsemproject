@@ -66,10 +66,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<Button>(R.id.btnGoogle).setOnClickListener {
-            navigateToMain()
-        }
-
         findViewById<TextView>(R.id.tvLogin).setOnClickListener {
             finish() // Go back to Login
         }

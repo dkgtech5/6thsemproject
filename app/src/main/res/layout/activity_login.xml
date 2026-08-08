@@ -116,52 +116,6 @@
             app:layout_constraintTop_toBottomOf="@id/tvForgotPassword" />
 
         <LinearLayout
-            android:id="@+id/llOr"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/btnLogin">
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#E0E0E0" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:text="@string/or"
-                android:textColor="@color/text_grey"
-                android:textSize="12sp" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#E0E0E0" />
-        </LinearLayout>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnGoogle"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginTop="32dp"
-            android:background="@drawable/btn_secondary"
-            android:drawableStart="@drawable/ic_google"
-            android:drawablePadding="12dp"
-            android:paddingStart="40dp"
-            android:text="@string/continue_with_google"
-            android:textAllCaps="false"
-            android:textColor="@color/text_dark"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/llOr" />
-
-        <LinearLayout
             android:id="@+id/llNoAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -169,7 +123,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnGoogle">
+            app:layout_constraintTop_toBottomOf="@id/btnLogin">
 
             <TextView
                 android:layout_width="wrap_content"
