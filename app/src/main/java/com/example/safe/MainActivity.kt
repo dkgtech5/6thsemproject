@@ -60,29 +60,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateDashboardData() {
-        // Update Stats
-        val stats = dbHelper.getScanStats()
-        val total = stats["total"] ?: 0
-        val safe = stats["safe"] ?: 0
-        val threats = stats["threats"] ?: 0
+        // Update Stats using real data from Database
+        dbHelper.getScanStats().apply {
+            val total = get("total") ?: 0
+            val safe = get("safe") ?: 0
+            val threats = get("threats") ?: 0
 
-        findViewById<TextView>(R.id.tvTotalScansCount).text = total.toString()
-        findViewById<TextView>(R.id.tvSafeScansCount).text = safe.toString()
-        findViewById<TextView>(R.id.tvThreatsCount).text = threats.toString()
+            findViewById<TextView>(R.id.tvTotalScansCount).text = total.toString()
+            findViewById<TextView>(R.id.tvSafeScansCount).text = safe.toString()
+            findViewById<TextView>(R.id.tvThreatsCount).text = threats.toString()
+        }
 
         // Update Recent Scans
-        val recentScans = dbHelper.getRecentScans(4)
-        val rvRecentScans = findViewById<RecyclerView>(R.id.rvRecentScans)
-        val layoutEmptyState = findViewById<View>(R.id.layoutEmptyState)
+        dbHelper.getRecentScans(4).also { scans ->
+            val rvRecentScans = findViewById<RecyclerView>(R.id.rvRecentScans)
+            val layoutEmptyState = findViewById<View>(R.id.layoutEmptyState)
 
-        if (recentScans.isEmpty()) {
-            rvRecentScans.visibility = View.GONE
-            layoutEmptyState.visibility = View.VISIBLE
-        } else {
-            rvRecentScans.visibility = View.VISIBLE
-            layoutEmptyState.visibility = View.GONE
-            rvRecentScans.layoutManager = LinearLayoutManager(this)
-            rvRecentScans.adapter = RecentScanAdapter(recentScans)
+            if (scans.isEmpty()) {
+                rvRecentScans.visibility = View.GONE
+                layoutEmptyState.visibility = View.VISIBLE
+            } else {
+                rvRecentScans.visibility = View.VISIBLE
+                layoutEmptyState.visibility = View.GONE
+                rvRecentScans.layoutManager = LinearLayoutManager(this)
+                rvRecentScans.adapter = RecentScanAdapter(scans)
+            }
         }
 
         updateDailyTip()
