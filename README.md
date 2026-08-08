@@ -75,8 +75,10 @@ The application follows a modular activity-based architecture designed for low l
 3. Sync Gradle and run the app on an emulator or physical device (Min SDK: 26).
 
 ## 👥 Contributors
-
 - **Dipak Kumar Gupta** - Lead Developer
+
+## 📜 License
+This project is for academic purposes and is protected under the MIT License.
 
 ---
 Developed as a 6th Semester Project.
