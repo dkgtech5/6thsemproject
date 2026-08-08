@@ -179,15 +179,14 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val stats = mutableMapOf("total" to 0, "safe" to 0, "threats" to 0)
         val db = this.readableDatabase
         
-        val cursorTotal = db.rawQuery("SELECT COUNT(*) FROM $TABLE_SCANS", null)
-        if (cursorTotal.moveToFirst()) stats["total"] = cursorTotal.getInt(0)
-        cursorTotal.close()
-
-        val cursorSafe = db.rawQuery("SELECT COUNT(*) FROM $TABLE_SCANS WHERE $COLUMN_IS_SAFE = 1", null)
-        if (cursorSafe.moveToFirst()) stats["safe"] = cursorSafe.getInt(0)
-        cursorSafe.close()
-
-        stats["threats"] = stats["total"]!! - stats["safe"]!!
+        // Single query for total and safe scans to optimize performance
+        val cursor = db.rawQuery("SELECT COUNT(*), SUM(CASE WHEN $COLUMN_IS_SAFE = 1 THEN 1 ELSE 0 END) FROM $TABLE_SCANS", null)
+        if (cursor.moveToFirst()) {
+            stats["total"] = cursor.getInt(0)
+            stats["safe"] = cursor.getInt(1)
+            stats["threats"] = stats["total"]!! - stats["safe"]!!
+        }
+        cursor.close()
         db.close()
         return stats
     }
