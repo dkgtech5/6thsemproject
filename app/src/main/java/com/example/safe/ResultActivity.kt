@@ -3,6 +3,7 @@ package com.example.safe
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -33,11 +35,17 @@ class ResultActivity : AppCompatActivity() {
         val url = intent.getStringExtra("URL") ?: "https://example.com"
         val isSafe = intent.getBooleanExtra("IS_SAFE", true)
         val riskScore = intent.getIntExtra("RISK_SCORE", if (isSafe) 5 else 94)
+        
+        // Extract detailed checks
+        val https = intent.getBooleanExtra("HTTPS", true)
+        val domain = intent.getBooleanExtra("DOMAIN", true)
+        val redirect = intent.getBooleanExtra("REDIRECT", true)
+        val structure = intent.getBooleanExtra("STRUCTURE", true)
 
-        setupUI(url, isSafe, riskScore)
+        setupUI(url, isSafe, riskScore, https, domain, redirect, structure)
     }
 
-    private fun setupUI(url: String, isSafe: Boolean, riskScore: Int) {
+    private fun setupUI(url: String, isSafe: Boolean, riskScore: Int, https: Boolean, domain: Boolean, redirect: Boolean, structure: Boolean) {
         val ivResultIcon = findViewById<ImageView>(R.id.ivResultIcon)
         val tvResultStatus = findViewById<TextView>(R.id.tvResultStatus)
         val tvResultSubtitle = findViewById<TextView>(R.id.tvResultSubtitle)
@@ -66,10 +74,10 @@ class ResultActivity : AppCompatActivity() {
             btnPrimary.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_visit, 0, 0, 0)
             btnSecondary.text = "Scan Another"
 
-            addChecklistItem(llChecklist, "HTTPS Enabled", true)
-            addChecklistItem(llChecklist, "Trusted Domain", true)
-            addChecklistItem(llChecklist, "No Suspicious Redirect", true)
-            addChecklistItem(llChecklist, "Clean URL Structure", true)
+            addChecklistItem(llChecklist, "HTTPS Enabled", https)
+            addChecklistItem(llChecklist, "Trusted Domain", domain)
+            addChecklistItem(llChecklist, "No Suspicious Redirect", redirect)
+            addChecklistItem(llChecklist, "Clean URL Structure", structure)
         } else {
             ivResultIcon.setImageResource(R.drawable.ic_error)
             ivResultIcon.imageTintList = ColorStateList.valueOf(Color.parseColor("#EF4444"))
@@ -84,19 +92,30 @@ class ResultActivity : AppCompatActivity() {
             btnPrimary.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_report, 0, 0, 0)
             btnSecondary.text = "Go Back"
 
-            addChecklistItem(llChecklist, "Suspicious Domain", false)
-            addChecklistItem(llChecklist, "Abnormal URL Length", false)
-            addChecklistItem(llChecklist, "Multiple Redirects Detected", false)
-            addChecklistItem(llChecklist, "Unsafe Content Pattern", false)
+            addChecklistItem(llChecklist, "HTTPS Enabled", https)
+            addChecklistItem(llChecklist, "Trusted Domain", domain)
+            addChecklistItem(llChecklist, "No Suspicious Redirect", redirect)
+            addChecklistItem(llChecklist, "Clean URL Structure", structure)
         }
 
         btnSecondary.setOnClickListener {
             finish()
         }
 
+        val visitWebsiteAction = View.OnClickListener {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Unable to open website", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        findViewById<View>(R.id.btnCopyUrl).setOnClickListener(visitWebsiteAction)
+
         btnPrimary.setOnClickListener {
             if (isSafe) {
-                // Visit website logic
+                visitWebsiteAction.onClick(it)
             } else {
                 val intent = Intent(this, ReportWebsiteActivity::class.java)
                 intent.putExtra("URL", url)

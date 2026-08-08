@@ -1,5 +1,6 @@
 package com.example.safe
 
+import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Intent
 import android.graphics.Color
@@ -10,11 +11,14 @@ import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.Locale
 
 class ScanningActivity : AppCompatActivity() {
@@ -23,6 +27,7 @@ class ScanningActivity : AppCompatActivity() {
     private lateinit var tvPercentage: TextView
     private lateinit var ivChecks: List<ImageView>
     private lateinit var tvChecks: List<TextView>
+    private var apiResponse: ScanResponse? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,35 +59,86 @@ class ScanningActivity : AppCompatActivity() {
             findViewById(R.id.tvCheckContent)
         )
 
-        startScanningAnimation()
+        val url = intent.getStringExtra("URL") ?: ""
+        if (url.isNotEmpty()) {
+            performScan(url)
+        } else {
+            Toast.makeText(this, "URL is missing", Toast.LENGTH_SHORT).show()
+            finish()
+        }
     }
 
-    private fun startScanningAnimation() {
+    private fun performScan(url: String) {
+        // Start the real API call
+        val request = ScanRequest(url)
+        
+        RetrofitClient.apiService.predictUrl(request).enqueue(object : Callback<ScanResponse> {
+            override fun onResponse(call: Call<ScanResponse>, response: Response<ScanResponse>) {
+                if (response.isSuccessful) {
+                    apiResponse = response.body()
+                } else {
+                    Toast.makeText(this@ScanningActivity, "Server Error: ${response.message()}", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ScanResponse>, t: Throwable) {
+                Toast.makeText(this@ScanningActivity, "Connection Failed: ${t.message}", Toast.LENGTH_LONG).show()
+            }
+        })
+
+        // Run the 5-second animation to keep UX smooth
         val animator = ValueAnimator.ofInt(0, 100)
-        animator.duration = 5000 // 5 seconds for full scan
+        animator.duration = 5000 
         animator.interpolator = LinearInterpolator()
 
         animator.addUpdateListener { animation ->
             val progress = animation.animatedValue as Int
             progressBar.progress = progress
             tvPercentage.text = String.format(Locale.getDefault(), "%d%%", progress)
-
             updateChecklist(progress)
         }
 
+        animator.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator) {}
+            override fun onAnimationEnd(animation: Animator) {
+                if (apiResponse != null) {
+                    navigateToResults(apiResponse!!)
+                } else {
+                    // If API is slow or failed, wait a bit or handle it
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (apiResponse != null) {
+                            navigateToResults(apiResponse!!)
+                        } else {
+                            Toast.makeText(this@ScanningActivity, "Unable to get results", Toast.LENGTH_SHORT).show()
+                            finish()
+                        }
+                    }, 2000)
+                }
+            }
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
         animator.start()
+    }
 
-        val url = intent.getStringExtra("URL") ?: "https://example.com"
-        val isPhishing = url.contains("phish") || url.contains("secure-login")
+    private fun navigateToResults(data: ScanResponse) {
+        // Save to database
+        val dbHelper = DatabaseHelper(this)
+        dbHelper.saveScan(data.url, data.status == "SAFE", data.riskScore)
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, ResultActivity::class.java)
-            intent.putExtra("URL", url)
-            intent.putExtra("IS_SAFE", !isPhishing)
-            intent.putExtra("RISK_SCORE", if (isPhishing) 94 else 5)
-            startActivity(intent)
-            finish()
-        }, 5500)
+        val intent = Intent(this, ResultActivity::class.java)
+        intent.putExtra("URL", data.url)
+        intent.putExtra("IS_SAFE", data.status == "SAFE")
+        intent.putExtra("RISK_SCORE", data.riskScore.toInt())
+        
+        // Pass security checks
+        intent.putExtra("HTTPS", data.securityChecks.httpsEnabled)
+        intent.putExtra("DOMAIN", data.securityChecks.trustedDomain)
+        intent.putExtra("REDIRECT", data.securityChecks.noSuspiciousRedirect)
+        intent.putExtra("STRUCTURE", data.securityChecks.cleanUrlStructure)
+        
+        startActivity(intent)
+        finish()
     }
 
     private fun updateChecklist(progress: Int) {
