@@ -56,13 +56,14 @@
             android:clipToPadding="false">
 
             <TextView
+                android:id="@+id/tvDateRange"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/date_range"
                 android:textColor="#64748B"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:layout_gravity="center"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="24dp"/>
 
             <!-- Stats Grid -->
             <GridLayout
