@@ -63,11 +63,11 @@ class ResultActivity : AppCompatActivity() {
 
         if (isSafe) {
             ivResultIcon.setImageResource(R.drawable.ic_check_circle)
-            ivResultIcon.imageTintList = ColorStateList.valueOf(Color.parseColor("#10B981"))
+            ivResultIcon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.status_safe_green))
             tvResultStatus.text = "SAFE"
-            tvResultStatus.setTextColor(Color.parseColor("#10B981"))
+            tvResultStatus.setTextColor(ContextCompat.getColor(this, R.color.status_safe_green))
             tvResultSubtitle.text = "This website appears to be legitimate"
-            tvRiskPercentage.setTextColor(Color.parseColor("#10B981"))
+            tvRiskPercentage.setTextColor(ContextCompat.getColor(this, R.color.status_safe_green))
             tvDetailsHeader.text = "Security Checks"
             
             btnPrimary.text = "Visit Website"
@@ -80,15 +80,15 @@ class ResultActivity : AppCompatActivity() {
             addChecklistItem(llChecklist, "Clean URL Structure", structure)
         } else {
             ivResultIcon.setImageResource(R.drawable.ic_error)
-            ivResultIcon.imageTintList = ColorStateList.valueOf(Color.parseColor("#EF4444"))
+            ivResultIcon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.status_phishing_red))
             tvResultStatus.text = "WARNING"
-            tvResultStatus.setTextColor(Color.parseColor("#EF4444"))
+            tvResultStatus.setTextColor(ContextCompat.getColor(this, R.color.status_phishing_red))
             tvResultSubtitle.text = "This website is likely phishing!"
-            tvRiskPercentage.setTextColor(Color.parseColor("#EF4444"))
+            tvRiskPercentage.setTextColor(ContextCompat.getColor(this, R.color.status_phishing_red))
             tvDetailsHeader.text = "Threat Reasons"
             
             btnPrimary.text = "Report Website"
-            btnPrimary.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#EF4444"))
+            btnPrimary.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.status_phishing_red))
             btnPrimary.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_report, 0, 0, 0)
             btnSecondary.text = "Go Back"
 
