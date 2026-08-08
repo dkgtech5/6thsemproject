@@ -32,9 +32,10 @@ The application follows a modular activity-based architecture designed for low l
 - **Data Layer:** SQLite persistent storage for user sessions and security scan logs.
 
 ## 📱 Screenshots (Coming Soon)
-*   Dashboard Overview
-*   Real-time Scanning Animation
-*   Security Threat Analysis
+- **Dashboard:** Overview of recent security activity.
+- **Scanning Flow:** Real-time AI processing animation.
+- **Threat Analytics:** Visual breakdown of safe vs. phishing detections.
+- **Profile:** Managed user sessions and settings.
 
 
 - **Language:** Kotlin
