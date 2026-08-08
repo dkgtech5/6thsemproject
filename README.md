@@ -18,7 +18,17 @@
 - **Help & Support:** Comprehensive FAQ and contact support system.
 - **Legal & Feedback:** Integrated Privacy Policy, Terms of Service, and user feedback reporting.
 
-## 🛠️ Tech Stack
+## 🧠 How It Works
+
+SafeGuard AI uses a dual-layer detection approach:
+1. **Heuristic Analysis:** Checks for suspicious patterns in URLs, abnormal length, and keyword matching.
+2. **AI-Driven Prediction:** Connects to a Python FastAPI backend running a trained Machine Learning model to evaluate the phishing probability of a given URL.
+
+## 📱 Screenshots (Coming Soon)
+*   Dashboard Overview
+*   Real-time Scanning Animation
+*   Security Threat Analysis
+
 
 - **Language:** Kotlin
 - **UI:** XML (ConstraintLayout, Material Design 3)
