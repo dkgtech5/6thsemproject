@@ -11,27 +11,51 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     companion object {
         private const val TAG = "DatabaseHelper"
         private const val DATABASE_NAME = "SafeGuard.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
+        
         private const val TABLE_USERS = "users"
         private const val COLUMN_ID = "id"
         private const val COLUMN_FULL_NAME = "full_name"
         private const val COLUMN_EMAIL = "email"
         private const val COLUMN_PASSWORD = "password"
+
+        private const val TABLE_SCANS = "scans"
+        private const val COLUMN_SCAN_ID = "scan_id"
+        private const val COLUMN_URL = "url"
+        private const val COLUMN_TIMESTAMP = "timestamp"
+        private const val COLUMN_IS_SAFE = "is_safe"
+        private const val COLUMN_RISK_SCORE = "risk_score"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
-        val createTableQuery = ("CREATE TABLE $TABLE_USERS (" +
+        val createUsersTable = ("CREATE TABLE $TABLE_USERS (" +
                 "$COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "$COLUMN_FULL_NAME TEXT, " +
                 "$COLUMN_EMAIL TEXT UNIQUE, " +
                 "$COLUMN_PASSWORD TEXT)")
-        db?.execSQL(createTableQuery)
+        
+        val createScansTable = ("CREATE TABLE $TABLE_SCANS (" +
+                "$COLUMN_SCAN_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "$COLUMN_URL TEXT, " +
+                "$COLUMN_TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                "$COLUMN_IS_SAFE INTEGER, " +
+                "$COLUMN_RISK_SCORE REAL)")
+
+        db?.execSQL(createUsersTable)
+        db?.execSQL(createScansTable)
         Log.d(TAG, "Database created: $DATABASE_NAME")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
-        onCreate(db)
+        if (oldVersion < 2) {
+            val createScansTable = ("CREATE TABLE $TABLE_SCANS (" +
+                    "$COLUMN_SCAN_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "$COLUMN_URL TEXT, " +
+                    "$COLUMN_TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                    "$COLUMN_IS_SAFE INTEGER, " +
+                    "$COLUMN_RISK_SCORE REAL)")
+            db?.execSQL(createScansTable)
+        }
         Log.d(TAG, "Database upgraded from version $oldVersion to $newVersion")
     }
 
@@ -115,5 +139,58 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         Log.d(TAG, "Update Password for $email: Result code $result")
         return result
+    }
+
+    fun saveScan(url: String, isSafe: Boolean, riskScore: Double): Long {
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(COLUMN_URL, url)
+        values.put(COLUMN_IS_SAFE, if (isSafe) 1 else 0)
+        values.put(COLUMN_RISK_SCORE, riskScore)
+        val result = db.insert(TABLE_SCANS, null, values)
+        db.close()
+        return result
+    }
+
+    fun getRecentScans(limit: Int = 5): List<RecentScan> {
+        val scanList = mutableListOf<RecentScan>()
+        val db = this.readableDatabase
+        val query = "SELECT * FROM $TABLE_SCANS ORDER BY $COLUMN_TIMESTAMP DESC LIMIT $limit"
+        val cursor = db.rawQuery(query, null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val url = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_URL))
+                val isSafe = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_SAFE)) == 1
+                val timestamp = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIMESTAMP))
+                scanList.add(RecentScan(url, timestamp, isSafe))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return scanList
+    }
+
+    fun getScanStats(): Map<String, Int> {
+        val stats = mutableMapOf("total" to 0, "safe" to 0, "threats" to 0)
+        val db = this.readableDatabase
+        
+        val cursorTotal = db.rawQuery("SELECT COUNT(*) FROM $TABLE_SCANS", null)
+        if (cursorTotal.moveToFirst()) stats["total"] = cursorTotal.getInt(0)
+        cursorTotal.close()
+
+        val cursorSafe = db.rawQuery("SELECT COUNT(*) FROM $TABLE_SCANS WHERE $COLUMN_IS_SAFE = 1", null)
+        if (cursorSafe.moveToFirst()) stats["safe"] = cursorSafe.getInt(0)
+        cursorSafe.close()
+
+        stats["threats"] = stats["total"]!! - stats["safe"]!!
+        db.close()
+        return stats
+    }
+
+    fun clearScans() {
+        val db = this.writableDatabase
+        db.delete(TABLE_SCANS, null, null)
+        db.close()
     }
 }
