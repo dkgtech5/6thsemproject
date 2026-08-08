@@ -31,19 +31,18 @@ class RecentScanAdapter(private val scans: List<RecentScan>) :
         holder.tvUrl.text = scan.url
         holder.tvTime.text = scan.time
         
-        if (scan.isSafe) {
-            holder.ivScanStatus.setImageResource(R.drawable.ic_check_circle)
-            holder.ivScanStatus.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
-            holder.tvStatusBadge.text = "Safe"
-            holder.tvStatusBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#ECFDF5"))
-            holder.tvStatusBadge.setTextColor(Color.parseColor("#10B981"))
-        } else {
-            holder.ivScanStatus.setImageResource(R.drawable.ic_error)
-            holder.ivScanStatus.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF2F2"))
-            holder.tvStatusBadge.text = "Phishing"
-            holder.tvStatusBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FEF2F2"))
-            holder.tvStatusBadge.setTextColor(Color.parseColor("#EF4444"))
-        }
+        val context = holder.itemView.context
+        val statusColor = if (scan.isSafe) "#10B981" else "#EF4444"
+        val bgColor = if (scan.isSafe) "#ECFDF5" else "#FEF2F2"
+        val statusIcon = if (scan.isSafe) R.drawable.ic_check_circle else R.drawable.ic_error
+        val statusLabel = if (scan.isSafe) "Safe" else "Phishing"
+
+        holder.ivScanStatus.setImageResource(statusIcon)
+        holder.ivScanStatus.backgroundTintList = ColorStateList.valueOf(Color.parseColor(bgColor))
+        
+        holder.tvStatusBadge.text = statusLabel
+        holder.tvStatusBadge.backgroundTintList = ColorStateList.valueOf(Color.parseColor(bgColor))
+        holder.tvStatusBadge.setTextColor(Color.parseColor(statusColor))
     }
 
     override fun getItemCount() = scans.size
