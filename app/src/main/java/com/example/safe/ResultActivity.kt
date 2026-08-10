@@ -70,6 +70,7 @@ class ResultActivity : AppCompatActivity() {
             tvRiskPercentage.setTextColor(ContextCompat.getColor(this, R.color.status_safe_green))
             tvDetailsHeader.text = "Security Checks"
             
+            btnPrimary.visibility = View.VISIBLE
             btnPrimary.text = "Visit Website"
             btnPrimary.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_visit, 0, 0, 0)
             btnSecondary.text = "Scan Another"
@@ -87,9 +88,7 @@ class ResultActivity : AppCompatActivity() {
             tvRiskPercentage.setTextColor(ContextCompat.getColor(this, R.color.status_phishing_red))
             tvDetailsHeader.text = "Threat Reasons"
             
-            btnPrimary.text = "Report Website"
-            btnPrimary.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.status_phishing_red))
-            btnPrimary.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_report, 0, 0, 0)
+            btnPrimary.visibility = View.GONE
             btnSecondary.text = "Go Back"
 
             addChecklistItem(llChecklist, "HTTPS Enabled", https)
@@ -116,10 +115,6 @@ class ResultActivity : AppCompatActivity() {
         btnPrimary.setOnClickListener {
             if (isSafe) {
                 visitWebsiteAction.onClick(it)
-            } else {
-                val intent = Intent(this, ReportWebsiteActivity::class.java)
-                intent.putExtra("URL", url)
-                startActivity(intent)
             }
         }
     }

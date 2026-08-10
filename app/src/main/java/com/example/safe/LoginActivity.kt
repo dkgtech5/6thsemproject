@@ -39,7 +39,8 @@ class LoginActivity : AppCompatActivity() {
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
             } else {
-                if (dbHelper.loginUser(email, password)) {
+                val loginStatus = dbHelper.loginUser(email, password)
+                if (loginStatus == 1) { // Success
                     val userDetails = dbHelper.getUserDetails(email)
                     Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
                     
@@ -57,6 +58,11 @@ class LoginActivity : AppCompatActivity() {
                     intent.putExtra("USER_ID", userDetails?.get("id"))
                     startActivity(intent)
                     finish()
+                } else if (loginStatus == 2) { // Not Verified
+                    Toast.makeText(this, "Please verify your email first", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, OtpVerificationActivity::class.java)
+                    intent.putExtra("EMAIL", email)
+                    startActivity(intent)
                 } else {
                     Toast.makeText(this, "Invalid Email or Password", Toast.LENGTH_SHORT).show()
                 }

@@ -21,3 +21,18 @@ data class SecurityChecks(
     @SerializedName("no_suspicious_redirect") val noSuspiciousRedirect: Boolean,
     @SerializedName("clean_url_structure") val cleanUrlStructure: Boolean
 )
+
+// OTP Related Models
+data class OtpRequest(
+    @SerializedName("email") val email: String
+)
+
+data class OtpVerifyRequest(
+    @SerializedName("email") val email: String,
+    @SerializedName("otp") val otp: String
+)
+
+data class OtpResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String
+)

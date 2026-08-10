@@ -49,7 +49,7 @@
             android:name=".QrScannerActivity"
             android:exported="false" />
         <activity
-            android:name=".ReportWebsiteActivity"
+            android:name=".OtpVerificationActivity"
             android:exported="false" />
         <activity
             android:name=".ScanHistoryActivity"

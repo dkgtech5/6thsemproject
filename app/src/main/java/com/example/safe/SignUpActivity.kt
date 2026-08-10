@@ -42,25 +42,24 @@ class SignUpActivity : AppCompatActivity() {
 
             if (fullName.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+            } else if (fullName.length < 4) {
+                Toast.makeText(this, "Name must be at least 4 characters", Toast.LENGTH_SHORT).show()
+            } else if (password.length < 6) {
+                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+            } else if (!password.any { it.isUpperCase() }) {
+                Toast.makeText(this, "Password must contain at least one uppercase letter", Toast.LENGTH_SHORT).show()
+            } else if (!password.any { !it.isLetterOrDigit() }) {
+                Toast.makeText(this, "Password must contain at least one special character", Toast.LENGTH_SHORT).show()
             } else {
                 if (dbHelper.checkEmail(email)) {
                     Toast.makeText(this, "Email already registered.", Toast.LENGTH_SHORT).show()
                 } else {
                     val result = dbHelper.registerUser(fullName, email, password)
                     if (result != -1L) {
-                        Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show()
-                        Log.d(TAG, "User registered: $fullName, ID: $result")
-                        
-                        // Print all users to Logcat for verification
-                        val users = dbHelper.getAllUsers()
-                        for (user in users) {
-                            Log.d(TAG, "Stored User: ID=${user["id"]}, Name=${user["full_name"]}, Email=${user["email"]}")
-                        }
-
-                        navigateToLogin()
+                        Log.d(TAG, "User registered locally: $fullName")
+                        sendOtpAndVerify(email)
                     } else {
                         Toast.makeText(this, "Registration Failed", Toast.LENGTH_SHORT).show()
-                        Log.e(TAG, "Registration failed for email: $email")
                     }
                 }
             }
@@ -69,6 +68,27 @@ class SignUpActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvLogin).setOnClickListener {
             finish() // Go back to Login
         }
+    }
+
+    private fun sendOtpAndVerify(email: String) {
+        val request = OtpRequest(email)
+        RetrofitClient.apiService.sendOtp(request).enqueue(object : retrofit2.Callback<OtpResponse> {
+            override fun onResponse(call: retrofit2.Call<OtpResponse>, response: retrofit2.Response<OtpResponse>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@SignUpActivity, "OTP sent to your email", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this@SignUpActivity, OtpVerificationActivity::class.java)
+                    intent.putExtra("EMAIL", email)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Toast.makeText(this@SignUpActivity, "Failed to send OTP", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<OtpResponse>, t: Throwable) {
+                Toast.makeText(this@SignUpActivity, "Connection to server failed", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun navigateToLogin() {

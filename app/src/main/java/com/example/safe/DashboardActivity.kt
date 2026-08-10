@@ -63,10 +63,13 @@ class DashboardActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvSafePercent).text = getString(R.string.percent_format, safePercent)
 
         // Update Bar Chart
-        updateBarChart(total)
+        updateBarChart()
     }
 
-    private fun updateBarChart(total: Int) {
+    private fun updateBarChart() {
+        val dailyCounts = dbHelper.getWeeklyStats()
+        val maxDayCount = dailyCounts.maxOrNull() ?: 1
+        
         val bars = listOf(
             findViewById<View>(R.id.bar1),
             findViewById<View>(R.id.bar2),
@@ -81,10 +84,13 @@ class DashboardActivity : AppCompatActivity() {
         val maxHeightPx = (130 * resources.displayMetrics.density).toInt()
         val baseHeightPx = (20 * resources.displayMetrics.density).toInt()
         
-        for (bar in bars) {
-            val randomVal = if (total > 0) (1..total).random() else 0
-            val height = if (total > 0) {
-                baseHeightPx + (randomVal.toFloat() / total * (maxHeightPx - baseHeightPx)).toInt()
+        for (i in bars.indices) {
+            val bar = bars[i]
+            val count = dailyCounts[i]
+            
+            // Calculate height proportionally to the busiest day of the week
+            val height = if (maxDayCount > 0) {
+                baseHeightPx + ((count.toFloat() / maxDayCount) * (maxHeightPx - baseHeightPx)).toInt()
             } else {
                 baseHeightPx
             }

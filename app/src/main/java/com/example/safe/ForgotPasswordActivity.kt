@@ -1,5 +1,6 @@
 package com.example.safe
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -9,6 +10,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ForgotPasswordActivity : AppCompatActivity() {
 
@@ -39,17 +43,17 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
             if (email.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+            } else if (newPass.length < 6) {
+                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+            } else if (!newPass.any { it.isUpperCase() }) {
+                Toast.makeText(this, "Password must contain at least one uppercase letter", Toast.LENGTH_SHORT).show()
+            } else if (!newPass.any { !it.isLetterOrDigit() }) {
+                Toast.makeText(this, "Password must contain at least one special character", Toast.LENGTH_SHORT).show()
             } else if (newPass != confirmPass) {
                 Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
             } else {
                 if (dbHelper.checkEmail(email)) {
-                    val result = dbHelper.updatePassword(email, newPass)
-                    if (result > 0) {
-                        Toast.makeText(this, "Password updated successfully.", Toast.LENGTH_SHORT).show()
-                        finish() // Return to LoginActivity
-                    } else {
-                        Toast.makeText(this, "Update failed. Please try again.", Toast.LENGTH_SHORT).show()
-                    }
+                    sendOtpAndVerify(email, newPass)
                 } else {
                     Toast.makeText(this, "Email not registered.", Toast.LENGTH_SHORT).show()
                 }
@@ -59,5 +63,28 @@ class ForgotPasswordActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvBackToLogin).setOnClickListener {
             finish()
         }
+    }
+
+    private fun sendOtpAndVerify(email: String, newPass: String) {
+        val request = OtpRequest(email)
+        RetrofitClient.apiService.sendOtp(request).enqueue(object : Callback<OtpResponse> {
+            override fun onResponse(call: Call<OtpResponse>, response: Response<OtpResponse>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@ForgotPasswordActivity, "OTP sent to your email", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this@ForgotPasswordActivity, OtpVerificationActivity::class.java)
+                    intent.putExtra("EMAIL", email)
+                    intent.putExtra("IS_FORGOT_PASSWORD", true)
+                    intent.putExtra("NEW_PASSWORD", newPass)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Toast.makeText(this@ForgotPasswordActivity, "Failed to send OTP", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<OtpResponse>, t: Throwable) {
+                Toast.makeText(this@ForgotPasswordActivity, "Connection Failed", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }

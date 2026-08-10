@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -55,7 +56,7 @@ class QrScannerActivity : AppCompatActivity() {
             finish()
         }
 
-        findViewById<Button>(R.id.btnEnterUrlInstead).setOnClickListener {
+        findViewById<TextView>(R.id.btnEnterUrlInstead).setOnClickListener {
             startActivity(Intent(this, ScanWebsiteActivity::class.java))
             finish()
         }
