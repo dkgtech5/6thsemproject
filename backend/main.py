@@ -1,18 +1,28 @@
 import asyncio
+import joblib
+import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 import tldextract
 
-# Import model, extraction engine, and domain rules from predict_url.py
+# Import the new feature extractor from Phishing_detection_Project
+from feature_extractor import extract_url_features
+
+# Import model, extraction engine, and domain rules from predict_url.py (old rules)
 from predict_url import (
-    extract_features, 
-    model, 
-    EXACT_LEGITIMATE_DOMAINS, 
+    EXACT_LEGITIMATE_DOMAINS,
     TRUSTED_TLD_SUFFIXES
 )
 
-# Import the new auth router
+# Import the new model and feature names
+MODEL_PATH = "model_new/mlp_phishing_pipeline.pkl"
+FEATURE_PATH = "model_new/feature_names.pkl"
+
+new_model = joblib.load(MODEL_PATH)
+new_feature_names = joblib.load(FEATURE_PATH)
+
+# Import the auth router
 from auth import router as auth_router
 
 app = FastAPI(title="SafeGuard AI API")
@@ -31,7 +41,11 @@ def clean_and_normalize_url(raw_url: str) -> str:
 
 @app.get("/")
 def home():
-    return {"status": "SafeGuard AI Backend Running"}
+    return {
+        "status": "SafeGuard AI Backend Running",
+        "model": "MLP (Updated)",
+        "features": len(new_feature_names)
+    }
 
 @app.post("/predict")
 async def predict_phishing(request: URLRequest):
@@ -50,9 +64,12 @@ async def predict_phishing(request: URLRequest):
             return {
                 "url": url,
                 "status": "SAFE",
+                "prediction": "LEGITIMATE",
                 "risk_score": 0.0,
                 "confidence_legitimate": 100.0,
                 "confidence_phishing": 0.0,
+                "legitimate_probability": 1.0,
+                "phishing_probability": 0.0,
                 "security_checks": {
                     "https_enabled": bool(url.startswith("https://")),
                     "trusted_domain": True,
@@ -66,9 +83,12 @@ async def predict_phishing(request: URLRequest):
             return {
                 "url": url,
                 "status": "SAFE",
+                "prediction": "LEGITIMATE",
                 "risk_score": 0.0,
                 "confidence_legitimate": 100.0,
                 "confidence_phishing": 0.0,
+                "legitimate_probability": 1.0,
+                "phishing_probability": 0.0,
                 "security_checks": {
                     "https_enabled": bool(url.startswith("https://")),
                     "trusted_domain": True,
@@ -82,9 +102,12 @@ async def predict_phishing(request: URLRequest):
             return {
                 "url": url,
                 "status": "PHISHING",
+                "prediction": "PHISHING",
                 "risk_score": 100.0,
                 "confidence_legitimate": 0.0,
                 "confidence_phishing": 100.0,
+                "legitimate_probability": 0.0,
+                "phishing_probability": 1.0,
                 "security_checks": {
                     "https_enabled": bool(url.startswith("https://")),
                     "trusted_domain": False,
@@ -93,74 +116,52 @@ async def predict_phishing(request: URLRequest):
                 }
             }
 
-        # Rule 4: Brand spoofing / typo-squatting
-        if any(b in ext.domain.lower() for b in ['esewa', 'khalti', 'paypal', 'daraz']) and registered_domain not in EXACT_LEGITIMATE_DOMAINS:
-            return {
-                "url": url,
-                "status": "PHISHING",
-                "risk_score": 100.0,
-                "confidence_legitimate": 0.0,
-                "confidence_phishing": 100.0,
-                "security_checks": {
-                    "https_enabled": bool(url.startswith("https://")),
-                    "trusted_domain": False,
-                    "no_suspicious_redirect": False,
-                    "clean_url_structure": False
-                }
-            }
-
-        # Rule 5: Machine Learning Pipeline with 3.5s Timeout Guard
+        # Rule 4: Machine Learning Pipeline with 10s Timeout Guard (Feature extraction can take time)
         try:
-            df_features = await asyncio.wait_for(
-                run_in_threadpool(extract_features, url),
-                timeout=3.5
+            features = await asyncio.wait_for(
+                run_in_threadpool(extract_url_features, url),
+                timeout=10.0
             )
-            pred = model.predict(df_features)[0]
-            prob = model.predict_proba(df_features)[0]
+
+            # Arrange features in EXACT training order
+            X = pd.DataFrame(
+                [[
+                    features[name]
+                    for name in new_feature_names
+                ]],
+                columns=new_feature_names
+            )
+
+            pred = new_model.predict(X)[0]
+            prob = new_model.predict_proba(X)[0]
 
             conf_legit = round(float(prob[0]) * 100, 2)
             conf_phish = round(float(prob[1]) * 100, 2)
-            label = "PHISHING" if int(pred) == 1 else "SAFE"
+
+            label = "SAFE" if pred == 0 else "PHISHING"
+            prediction_text = "LEGITIMATE" if pred == 0 else "PHISHING"
 
             return {
                 "url": url,
                 "status": label,
+                "prediction": prediction_text,
                 "risk_score": conf_phish,
                 "confidence_legitimate": conf_legit,
                 "confidence_phishing": conf_phish,
+                "legitimate_probability": round(float(prob[0]), 4),
+                "phishing_probability": round(float(prob[1]), 4),
                 "security_checks": {
                     "https_enabled": bool(url.startswith("https://")),
-                    "trusted_domain": bool(int(pred) == 0),
+                    "trusted_domain": bool(pred == 0),
                     "no_suspicious_redirect": bool(not ("redirect=" in url or "@" in url)),
-                    "clean_url_structure": bool(url.count('-') < 2 and url.count('.') < 4)
+                    "clean_url_structure": bool(url.count('-') < 3 and url.count('.') < 5)
                 }
             }
 
         except asyncio.TimeoutError:
-            print(f"[Timeout Guard] Feature extraction took too long for {url}. Falling back to heuristic check.")
-            raise Exception("Network lookup timeout")
+            print(f"[Timeout Guard] Feature extraction took too long for {url}.")
+            raise HTTPException(status_code=504, detail="Analysis timed out")
 
-    except BaseException as e:
-        print(f"[Fallback Triggered] {url}: {str(e)}")
-        
-        is_https = bool(url.startswith("https://"))
-        has_at_symbol = bool("@" in url)
-        has_suspicious_symbols = bool(url.count('-') >= 3 or url.count('.') >= 4)
-        
-        is_phish_heuristic = not is_https or has_at_symbol or has_suspicious_symbols
-        status_label = "PHISHING" if is_phish_heuristic else "SAFE"
-        risk = 80.0 if is_phish_heuristic else 15.0
-
-        return {
-            "url": url,
-            "status": status_label,
-            "risk_score": risk,
-            "confidence_legitimate": round(100.0 - risk, 2),
-            "confidence_phishing": risk,
-            "security_checks": {
-                "https_enabled": is_https,
-                "trusted_domain": bool(not is_phish_heuristic),
-                "no_suspicious_redirect": bool(not has_at_symbol),
-                "clean_url_structure": bool(not has_suspicious_symbols)
-            }
-        }
+    except Exception as e:
+        print(f"[Error] {url}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

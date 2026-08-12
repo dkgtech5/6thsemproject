@@ -12,7 +12,11 @@ data class ScanResponse(
     @SerializedName("risk_score") val riskScore: Double,
     @SerializedName("confidence_legitimate") val confidenceLegitimate: Double,
     @SerializedName("confidence_phishing") val confidencePhishing: Double,
-    @SerializedName("security_checks") val securityChecks: SecurityChecks
+    @SerializedName("security_checks") val securityChecks: SecurityChecks,
+    // New fields from the updated model
+    @SerializedName("prediction") val prediction: String? = null,
+    @SerializedName("legitimate_probability") val legitimateProbability: Double? = null,
+    @SerializedName("phishing_probability") val phishingProbability: Double? = null
 )
 
 data class SecurityChecks(

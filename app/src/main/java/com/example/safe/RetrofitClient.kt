@@ -22,7 +22,7 @@ interface ApiService {
  */
 object RetrofitClient {
     // Change this to http://10.0.2.2:8000/ if using Emulator
-    private const val BASE_URL = "http://192.168.254.8:8000/"
+    private const val BASE_URL = "http://192.168.254.1:8000/"
 
     private val retrofit by lazy {
         Retrofit.Builder()
