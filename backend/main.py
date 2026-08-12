@@ -9,11 +9,21 @@ import tldextract
 # Import the new feature extractor from Phishing_detection_Project
 from feature_extractor import extract_url_features
 
-# Import model, extraction engine, and domain rules from predict_url.py (old rules)
-from predict_url import (
-    EXACT_LEGITIMATE_DOMAINS,
-    TRUSTED_TLD_SUFFIXES
-)
+# Top legitimate domains whitelist (Exact Matches Only)
+EXACT_LEGITIMATE_DOMAINS = {
+    # Global Tech
+    'google.com', 'github.com', 'amazon.com', 'facebook.com',
+    'paypal.com', 'microsoft.com', 'apple.com', 'xhamster.com',
+
+    # Nepalese E-commerce & Financial Services
+    'esewa.com.np', 'khalti.com', 'daraz.com.np',
+
+    # Nepalese Educational & Government Institutions
+    'ncit.edu.np', 'tu.edu.np', 'ku.edu.np', 'pu.edu.np', 'pokharauni.edu.np'
+}
+
+# Trusted Official TLDs (Academic & Government suffix auto-bypass)
+TRUSTED_TLD_SUFFIXES = {'edu.np', 'gov.np', 'ac.uk', 'edu', 'gov'}
 
 # Import the new model and feature names
 MODEL_PATH = "model_new/mlp_phishing_pipeline.pkl"
