@@ -6,7 +6,7 @@ from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 router = APIRouter()
 
 # --- EMAIL CONFIGURATION ---
-# Replace with your actual Gmail App Password
+# Updated with user provided credentials
 conf = ConnectionConfig(
     MAIL_USERNAME = "dipak.231713@ncit.edu.np",
     MAIL_PASSWORD = "iqnd xnkg xeor vdwv",
