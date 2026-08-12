@@ -177,6 +177,99 @@
             android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@id/tvDetailsHeader" />
 
+        <!-- AI Confidence Analysis Section -->
+        <TextView
+            android:id="@+id/tvAiHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="AI Confidence Analysis"
+            android:textColor="#0F172A"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/llResultChecklist" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAiConfidence"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#F1F5F9"
+            app:strokeWidth="1dp"
+            app:layout_constraintTop_toBottomOf="@id/tvAiHeader">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Legitimate Probability"
+                        android:textColor="#64748B"
+                        android:textSize="14sp" />
+                    <TextView
+                        android:id="@+id/tvLegitProb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0.0000"
+                        android:textColor="#10B981"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/pbLegit"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="8dp"
+                    android:max="100"
+                    android:progressDrawable="@drawable/custom_progress_bar" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Phishing Probability"
+                        android:textColor="#64748B"
+                        android:textSize="14sp" />
+                    <TextView
+                        android:id="@+id/tvPhishProb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0.0000"
+                        android:textColor="#EF4444"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/pbPhish"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="8dp"
+                    android:max="100"
+                    android:progressDrawable="@drawable/custom_progress_bar_red" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Actions -->
         <Button
             android:id="@+id/btnPrimaryAction"
@@ -193,7 +286,7 @@
             android:textSize="18sp"
             android:textStyle="bold"
             app:backgroundTint="@null"
-            app:layout_constraintTop_toBottomOf="@id/llResultChecklist" />
+            app:layout_constraintTop_toBottomOf="@id/cardAiConfidence" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnSecondaryAction"

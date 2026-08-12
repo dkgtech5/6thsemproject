@@ -138,6 +138,10 @@ class ScanningActivity : AppCompatActivity() {
         intent.putExtra("DOMAIN", data.securityChecks.trustedDomain)
         intent.putExtra("REDIRECT", data.securityChecks.noSuspiciousRedirect)
         intent.putExtra("STRUCTURE", data.securityChecks.cleanUrlStructure)
+
+        // Pass new model probabilities
+        intent.putExtra("LEGIT_PROB", data.legitimateProbability ?: (1.0 - (data.riskScore / 100.0)))
+        intent.putExtra("PHISH_PROB", data.phishingProbability ?: (data.riskScore / 100.0))
         
         startActivity(intent)
         finish()

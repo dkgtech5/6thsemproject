@@ -19,6 +19,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
+import java.util.Locale
+
 class ResultActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,10 +44,13 @@ class ResultActivity : AppCompatActivity() {
         val redirect = intent.getBooleanExtra("REDIRECT", true)
         val structure = intent.getBooleanExtra("STRUCTURE", true)
 
-        setupUI(url, isSafe, riskScore, https, domain, redirect, structure)
+        val legitProb = intent.getDoubleExtra("LEGIT_PROB", 0.0)
+        val phishProb = intent.getDoubleExtra("PHISH_PROB", 0.0)
+
+        setupUI(url, isSafe, riskScore, https, domain, redirect, structure, legitProb, phishProb)
     }
 
-    private fun setupUI(url: String, isSafe: Boolean, riskScore: Int, https: Boolean, domain: Boolean, redirect: Boolean, structure: Boolean) {
+    private fun setupUI(url: String, isSafe: Boolean, riskScore: Int, https: Boolean, domain: Boolean, redirect: Boolean, structure: Boolean, legitProb: Double, phishProb: Double) {
         val ivResultIcon = findViewById<ImageView>(R.id.ivResultIcon)
         val tvResultStatus = findViewById<TextView>(R.id.tvResultStatus)
         val tvResultSubtitle = findViewById<TextView>(R.id.tvResultSubtitle)
@@ -57,9 +62,19 @@ class ResultActivity : AppCompatActivity() {
         val btnPrimary = findViewById<Button>(R.id.btnPrimaryAction)
         val btnSecondary = findViewById<Button>(R.id.btnSecondaryAction)
 
+        val tvLegitProb = findViewById<TextView>(R.id.tvLegitProb)
+        val tvPhishProb = findViewById<TextView>(R.id.tvPhishProb)
+        val pbLegit = findViewById<ProgressBar>(R.id.pbLegit)
+        val pbPhish = findViewById<ProgressBar>(R.id.pbPhish)
+
         tvResultUrl.text = url
         tvRiskPercentage.text = "$riskScore%"
         pbRisk.progress = riskScore
+
+        tvLegitProb.text = String.format(Locale.getDefault(), "%.4f", legitProb)
+        tvPhishProb.text = String.format(Locale.getDefault(), "%.4f", phishProb)
+        pbLegit.progress = (legitProb * 100).toInt()
+        pbPhish.progress = (phishProb * 100).toInt()
 
         if (isSafe) {
             ivResultIcon.setImageResource(R.drawable.ic_check_circle)
