@@ -1,177 +1,132 @@
-import asyncio
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import joblib
 import pandas as pd
-from fastapi import FastAPI, HTTPException
-from fastapi.concurrency import run_in_threadpool
-from pydantic import BaseModel
 import tldextract
-
-# Import the new feature extractor from Phishing_detection_Project
 from feature_extractor import extract_url_features
-
-# Top legitimate domains whitelist (Exact Matches Only)
-EXACT_LEGITIMATE_DOMAINS = {
-    # Global Tech
-    'google.com', 'github.com', 'amazon.com', 'facebook.com',
-    'paypal.com', 'microsoft.com', 'apple.com', 'xhamster.com',
-
-    # Nepalese E-commerce & Financial Services
-    'esewa.com.np', 'khalti.com', 'daraz.com.np',
-
-    # Nepalese Educational & Government Institutions
-    'ncit.edu.np', 'tu.edu.np', 'ku.edu.np', 'pu.edu.np', 'pokharauni.edu.np'
-}
-
-# Trusted Official TLDs (Academic & Government suffix auto-bypass)
-TRUSTED_TLD_SUFFIXES = {'edu.np', 'gov.np', 'ac.uk', 'edu', 'gov'}
-
-# Import the new model and feature names
-MODEL_PATH = "model_new/mlp_phishing_pipeline.pkl"
-FEATURE_PATH = "model_new/feature_names.pkl"
-
-new_model = joblib.load(MODEL_PATH)
-new_feature_names = joblib.load(FEATURE_PATH)
 
 # Import the auth router
 from auth import router as auth_router
 
-app = FastAPI(title="SafeGuard AI API")
+# ============================================================
+# FastAPI Application
+# ============================================================
+
+app = FastAPI(
+    title="AI-Based Phishing Detection API",
+    description="MLP-based phishing website detection API",
+    version="1.0"
+)
 
 # Include the auth router
 app.include_router(auth_router)
 
+# ============================================================
+# Load Model
+# ============================================================
+
+MODEL_PATH = "model/mlp_phishing_pipeline.pkl"
+FEATURE_PATH = "model/feature_names.pkl"
+
+model = joblib.load(MODEL_PATH)
+feature_names = joblib.load(FEATURE_PATH)
+
+# ============================================================
+# Heuristic Rules & Constants
+# ============================================================
+
+EXACT_LEGITIMATE_DOMAINS = {
+    'google.com', 'github.com', 'amazon.com', 'facebook.com',
+    'paypal.com', 'microsoft.com', 'apple.com', 'youtube.com',
+    'ncit.edu.np', 'tu.edu.np', 'ku.edu.np', 'pu.edu.np', 'esewa.com.np', 'khalti.com'
+}
+
+TRUSTED_TLD_SUFFIXES = {'edu.np', 'gov.np', 'ac.uk', 'edu', 'gov'}
+
+# ============================================================
+# Request Model
+# ============================================================
+
 class URLRequest(BaseModel):
     url: str
 
-def clean_and_normalize_url(raw_url: str) -> str:
-    url = raw_url.strip()
-    if not url.startswith(("http://", "https://")):
-        url = "http://" + url
-    return url
+# ============================================================
+# Health Check
+# ============================================================
 
 @app.get("/")
 def home():
     return {
-        "status": "SafeGuard AI Backend Running",
+        "status": "online",
+        "message": "AI-Based Phishing Detection API",
         "model": "MLP (Updated)",
-        "features": len(new_feature_names)
+        "features": len(feature_names)
     }
 
-@app.post("/predict")
-async def predict_phishing(request: URLRequest):
-    raw_input = request.url.strip()
-    if not raw_input:
-        raise HTTPException(status_code=400, detail="URL cannot be empty")
-    
-    url = clean_and_normalize_url(raw_input)
+# ============================================================
+# Prediction Endpoint
+# ============================================================
 
+@app.post("/predict")
+def predict(request: URLRequest):
     try:
+        url = request.url.strip()
+        if not url.startswith(("http://", "https://")):
+            url = "http://" + url
+
         ext = tldextract.extract(url)
         registered_domain = f"{ext.domain}.{ext.suffix}".lower() if ext.suffix else ext.domain.lower()
 
-        # Rule 1: Exact match for verified legitimate domains
-        if registered_domain in EXACT_LEGITIMATE_DOMAINS and ext.suffix and not ext.subdomain:
-            return {
-                "url": url,
-                "status": "SAFE",
-                "prediction": "LEGITIMATE",
-                "risk_score": 0.0,
-                "confidence_legitimate": 100.0,
-                "confidence_phishing": 0.0,
-                "legitimate_probability": 1.0,
-                "phishing_probability": 0.0,
-                "security_checks": {
-                    "https_enabled": bool(url.startswith("https://")),
-                    "trusted_domain": True,
-                    "no_suspicious_redirect": True,
-                    "clean_url_structure": True
-                }
-            }
+        # --- HEURISTIC CHECK 1: Whitelist ---
+        if registered_domain in EXACT_LEGITIMATE_DOMAINS and not ext.subdomain:
+            return create_response(url, "SAFE", 0.0, 1.0, 0.0, True)
 
-        # Rule 2: Official Educational and Government domains (.edu.np, .gov.np, etc.)
+        # --- HEURISTIC CHECK 2: Trusted Suffixes ---
         if ext.suffix in TRUSTED_TLD_SUFFIXES and not ext.subdomain:
-            return {
-                "url": url,
-                "status": "SAFE",
-                "prediction": "LEGITIMATE",
-                "risk_score": 0.0,
-                "confidence_legitimate": 100.0,
-                "confidence_phishing": 0.0,
-                "legitimate_probability": 1.0,
-                "phishing_probability": 0.0,
-                "security_checks": {
-                    "https_enabled": bool(url.startswith("https://")),
-                    "trusted_domain": True,
-                    "no_suspicious_redirect": True,
-                    "clean_url_structure": True
-                }
-            }
+            return create_response(url, "SAFE", 0.0, 1.0, 0.0, True)
 
-        # Rule 3: Invalid Top-Level Domain
-        if not bool(ext.suffix):
-            return {
-                "url": url,
-                "status": "PHISHING",
-                "prediction": "PHISHING",
-                "risk_score": 100.0,
-                "confidence_legitimate": 0.0,
-                "confidence_phishing": 100.0,
-                "legitimate_probability": 0.0,
-                "phishing_probability": 1.0,
-                "security_checks": {
-                    "https_enabled": bool(url.startswith("https://")),
-                    "trusted_domain": False,
-                    "no_suspicious_redirect": False,
-                    "clean_url_structure": False
-                }
-            }
+        # --- ML MODEL CHECK ---
+        features = extract_url_features(url)
 
-        # Rule 4: Machine Learning Pipeline with 10s Timeout Guard (Feature extraction can take time)
-        try:
-            features = await asyncio.wait_for(
-                run_in_threadpool(extract_url_features, url),
-                timeout=10.0
-            )
+        # Arrange features in training order
+        X = pd.DataFrame(
+            [[features[name] for name in feature_names]],
+            columns=feature_names
+        )
 
-            # Arrange features in EXACT training order
-            X = pd.DataFrame(
-                [[
-                    features[name]
-                    for name in new_feature_names
-                ]],
-                columns=new_feature_names
-            )
+        prediction = model.predict(X)[0]
+        probabilities = model.predict_proba(X)[0]
 
-            pred = new_model.predict(X)[0]
-            prob = new_model.predict_proba(X)[0]
+        status = "PHISHING" if prediction == 1 else "SAFE"
+        risk_score = round(float(probabilities[1]) * 100, 2)
 
-            conf_legit = round(float(prob[0]) * 100, 2)
-            conf_phish = round(float(prob[1]) * 100, 2)
-
-            label = "SAFE" if pred == 0 else "PHISHING"
-            prediction_text = "LEGITIMATE" if pred == 0 else "PHISHING"
-
-            return {
-                "url": url,
-                "status": label,
-                "prediction": prediction_text,
-                "risk_score": conf_phish,
-                "confidence_legitimate": conf_legit,
-                "confidence_phishing": conf_phish,
-                "legitimate_probability": round(float(prob[0]), 4),
-                "phishing_probability": round(float(prob[1]), 4),
-                "security_checks": {
-                    "https_enabled": bool(url.startswith("https://")),
-                    "trusted_domain": bool(pred == 0),
-                    "no_suspicious_redirect": bool(not ("redirect=" in url or "@" in url)),
-                    "clean_url_structure": bool(url.count('-') < 3 and url.count('.') < 5)
-                }
-            }
-
-        except asyncio.TimeoutError:
-            print(f"[Timeout Guard] Feature extraction took too long for {url}.")
-            raise HTTPException(status_code=504, detail="Analysis timed out")
+        return create_response(
+            url,
+            status,
+            risk_score,
+            probabilities[0],
+            probabilities[1],
+            prediction == 0
+        )
 
     except Exception as e:
-        print(f"[Error] {url}: {str(e)}")
+        print(f"Prediction Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+def create_response(url, status, risk_score, prob_legit, prob_phish, is_trusted):
+    return {
+        "url": url,
+        "status": status,
+        "prediction": "LEGITIMATE" if status == "SAFE" else "PHISHING",
+        "risk_score": risk_score,
+        "confidence_legitimate": round(float(prob_legit) * 100, 2),
+        "confidence_phishing": round(float(prob_phish) * 100, 2),
+        "legitimate_probability": round(float(prob_legit), 4),
+        "phishing_probability": round(float(prob_phish), 4),
+        "security_checks": {
+            "https_enabled": url.startswith("https://"),
+            "trusted_domain": is_trusted,
+            "no_suspicious_redirect": not ("redirect=" in url or "@" in url),
+            "clean_url_structure": url.count('-') < 3 and url.count('.') < 5
+        }
+    }
