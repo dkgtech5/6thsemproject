@@ -4,3 +4,9 @@ scikit-learn
 pandas
 numpy
 joblib
+fastapi-mail
+pydantic[email]
+tldextract
+python-whois
+dnspython
+requests

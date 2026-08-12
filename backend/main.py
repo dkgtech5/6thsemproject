@@ -86,16 +86,16 @@ def predict(request: URLRequest):
             return create_response(url, "SAFE", 0.0, 1.0, 0.0, True)
 
         # --- ML MODEL CHECK ---
-        features = extract_url_features(url)
+        try:
+            features = extract_url_features(url)
+        except Exception as e:
+            print(f"Extraction error for {url}: {e}")
+            # Fallback: identify as PHISHING if technical scan crashes on a suspicious link
+            return create_response(url, "PHISHING", 95.0, 0.05, 0.95, False)
 
-        # Check for missing features
-        missing = [f for f in feature_names if f not in features]
-        if missing:
-            raise HTTPException(status_code=500, detail={"message": "Missing features", "features": missing})
-
-        # Arrange features in training order
+        # Ensure all required features are present, using 0 as a default for missing ones
         X = pd.DataFrame(
-            [[features[name] for name in feature_names]],
+            [[features.get(name, 0) for name in feature_names]],
             columns=feature_names
         )
 
