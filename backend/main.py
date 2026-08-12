@@ -88,6 +88,11 @@ def predict(request: URLRequest):
         # --- ML MODEL CHECK ---
         features = extract_url_features(url)
 
+        # Check for missing features
+        missing = [f for f in feature_names if f not in features]
+        if missing:
+            raise HTTPException(status_code=500, detail={"message": "Missing features", "features": missing})
+
         # Arrange features in training order
         X = pd.DataFrame(
             [[features[name] for name in feature_names]],
@@ -109,6 +114,8 @@ def predict(request: URLRequest):
             prediction == 0
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Prediction Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
